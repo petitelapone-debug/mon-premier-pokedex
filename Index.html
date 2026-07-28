@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pokédex TCG">
+<meta name="theme-color" id="themeColor" content="#B3272C">
+<title>Pokédex TCG</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='47' fill='%23B3272C' stroke='%231C1712' stroke-width='4'/><rect x='3' y='44' width='94' height='12' fill='%231C1712'/><circle cx='50' cy='50' r='16' fill='%23FBF6EC' stroke='%231C1712' stroke-width='5'/><circle cx='50' cy='50' r='7' fill='%23B8862E'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.14.0/dist/tabler-icons.min.css">
+<style>
+/* ══════════════════════════════════════════════════════════
+   DESIGN — « Le Classeur »
+   Un classeur de collectionneur sous la lumière : les cartes
+   possédées accrochent la lumière (reflet holo), les cartes
+   manquantes sont des pochettes vides en attente, la progression
+   se remplit comme un tampon doré.
+══════════════════════════════════════════════════════════ */
+
+:root{
+  /* Encre & papier — mode clair */
+  --ink:#1C1712; --ink2:#5A4F42; --ink3:#9C9082;
+  --paper:#FBF6EC; --paper2:#F1E7D2; --paper3:#E7D9BC;
+  --bd:rgba(28,23,18,0.14); --bd2:rgba(28,23,18,0.26);
+
+  /* Accents */
+  --crimson:#B3272C; --crimson-ink:#7A1B1F;
+  --gold:#B8862E; --gold-light:#E4C874;
+  --green:#3E7D4A; --orange:#B5711E; --purple:#6B4E9E;
+
+  /* Reflet holo (signature) */
+  --holo:linear-gradient(115deg,#FF9AD8 0%,#9FE3FF 28%,#FFE9A6 55%,#C6A9FF 78%,#FF9AD8 100%);
+
+  /* Alias fonctionnels (compat) */
+  --bg:var(--paper); --bg2:var(--paper2); --bg3:var(--paper3);
+  --tx:var(--ink); --tx2:var(--ink2); --tx3:var(--ink3);
+  --red:var(--crimson);
+
+  --r8:10px; --r12:14px; --r16:20px;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-l:env(safe-area-inset-left,0px); --safe-r:env(safe-area-inset-right,0px);
+
+  --font-display:'Fraunces','Georgia',serif;
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+[data-theme="dark"],:root.sys-dark{
+  --ink:#F3ECDD; --ink2:#C6BAA4; --ink3:#877A66;
+  --paper:#17130F; --paper2:#221B14; --paper3:#33281B;
+  --bd:rgba(243,236,221,0.12); --bd2:rgba(243,236,221,0.24);
+  --crimson:#E0555A; --gold:#D4A94A;
+  --green:#5FAE6E; --orange:#D69A4E; --purple:#A78CDB;
+}
+[data-theme="light"]{
+  --ink:#1C1712; --ink2:#5A4F42; --ink3:#9C9082;
+  --paper:#FBF6EC; --paper2:#F1E7D2; --paper3:#E7D9BC;
+  --bd:rgba(28,23,18,0.14); --bd2:rgba(28,23,18,0.26);
+  --crimson:#B3272C; --gold:#B8862E;
+  --green:#3E7D4A; --orange:#B5711E; --purple:#6B4E9E;
+}
+
+/* ── Reset & base ────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;height:100dvh;overflow:hidden;font-family:var(--font-body);background:var(--paper);color:var(--ink);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;}
+button,select,input,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px;}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;}}
+
+#app{display:flex;flex-direction:column;height:100%;height:100dvh;max-width:520px;margin:0 auto;position:relative;background:var(--paper);}
+#header{flex-shrink:0;background:var(--paper);border-bottom:1px solid var(--bd);padding-top:var(--safe-t);padding-left:var(--safe-l);padding-right:var(--safe-r);position:relative;}
+#header::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.5;}
+#content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-left:var(--safe-l);padding-right:var(--safe-r);background:var(--paper);}
+#tabbar{flex-shrink:0;background:var(--paper);border-top:1px solid var(--bd);padding-bottom:var(--safe-b);padding-left:var(--safe-l);padding-right:var(--safe-r);}
+
+h1,h2,h3{font-family:var(--font-display);}
+.mono{font-family:var(--font-mono);}
+
+/* ── Inputs ──────────────────────────────────────────────── */
+input[type=text],input[type=password]{width:100%;padding:11px 14px 11px 38px;border:1px solid var(--bd);border-radius:var(--r8);background:var(--paper2);color:var(--ink);font-size:15px;outline:none;-webkit-appearance:none;transition:border-color .15s;}
+input[type=text]:focus,input[type=password]:focus{border-color:var(--gold);}
+select{padding:9px 11px;border:1px solid var(--bd);border-radius:var(--r8);background:var(--paper2);color:var(--ink);font-size:13px;outline:none;-webkit-appearance:none;font-weight:500;}
+
+/* ── Tab bar ─────────────────────────────────────────────── */
+.tab-btn{flex:1;padding:11px 0 9px;border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;transition:color .15s;cursor:pointer;position:relative;letter-spacing:.02em;}
+.tab-dot{position:absolute;top:6px;right:calc(50% - 15px);width:6px;height:6px;background:var(--gold);border-radius:50%;display:none;box-shadow:0 0 0 2px var(--paper);}
+.tab-dot.on{display:block;}
+
+/* ── Liste d'éditions : « onglets de classeur » ─────────────── */
+.set-item{display:flex;align-items:stretch;padding:10px 14px;cursor:pointer;gap:12px;position:relative;}
+.set-item::after{content:'';position:absolute;left:14px;right:14px;bottom:0;height:1px;background:var(--bd);}
+.set-item:active{background:var(--paper2);}
+
+/* ── Pills / filtres ─────────────────────────────────────── */
+.pill{padding:6px 13px;border-radius:20px;border:1px solid;font-size:12px;font-weight:600;cursor:pointer;background:none;white-space:nowrap;transition:all .15s;}
+
+/* ── Carte : reflet holo (possédée) / pochette vide (manquante) ── */
+.card-wrap{position:relative;border-radius:var(--r12);overflow:hidden;border:1px solid var(--bd);background:var(--paper2);cursor:pointer;transition:transform .12s;}
+.card-wrap:active{transform:scale(0.96);}
+.card-wrap.is-owned{box-shadow:0 2px 10px rgba(28,23,18,0.10);}
+.card-wrap.is-owned::before{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:var(--holo);background-size:250% 250%;mix-blend-mode:overlay;opacity:0.32;
+  animation:holoDrift 7s ease-in-out infinite;
+}
+@keyframes holoDrift{0%,100%{background-position:0% 30%}50%{background-position:100% 70%}}
+.card-wrap.is-missing{border-style:dashed;border-color:var(--bd2);background:var(--paper);}
+.card-wrap.is-missing img{filter:grayscale(1) brightness(1.08);opacity:0.34;}
+
+.qbtn{width:27px;height:27px;border-radius:50%;border:1.5px solid var(--paper);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;position:absolute;top:5px;right:5px;z-index:3;box-shadow:0 1px 4px rgba(0,0,0,0.25);}
+.qheart{width:23px;height:23px;border-radius:50%;border:1.5px solid var(--paper);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;position:absolute;top:5px;left:5px;z-index:3;background:var(--crimson);}
+.qdouble{position:absolute;bottom:33px;right:5px;background:var(--purple);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px;z-index:3;font-family:var(--font-mono);}
+
+.metric{background:var(--paper2);border-radius:var(--r8);padding:13px 14px;border:1px solid var(--bd);}
+.row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;border-bottom:1px solid var(--bd);}
+.row .mono{font-family:var(--font-mono);font-size:13px;}
+
+/* ── Progression : tampon doré ───────────────────────────── */
+.progress-bar{height:5px;background:var(--bd);border-radius:3px;overflow:hidden;position:relative;}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.2,.8,.2,1);position:relative;}
+.progress-fill.is-complete{background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));background-size:200% 100%;animation:foilSweep 2.2s linear infinite;}
+@keyframes foilSweep{0%{background-position:0% 0%}100%{background-position:200% 0%}}
+
+.action-btn{padding:12px 10px;border-radius:var(--r8);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s;}
+.action-btn:active{transform:scale(0.97);}
+.section-title{font-family:var(--font-display);font-size:17px;font-weight:600;margin-bottom:10px;color:var(--ink);}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px 28px;color:var(--ink2);font-size:14px;gap:12px;text-align:center;line-height:1.5;}
+.empty i{color:var(--gold);opacity:0.55;}
+
+/* ── Animations de transition ────────────────────────────── */
+.fade{animation:fadein .25s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.slide-left{animation:slideLeft .24s cubic-bezier(.2,.8,.2,1);}
+@keyframes slideLeft{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:translateX(0)}}
+.slide-right{animation:slideRight .24s cubic-bezier(.2,.8,.2,1);}
+@keyframes slideRight{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:translateX(0)}}
+.zoom-wrap{background:rgba(10,8,6,0.94);min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:14px;}
+.pulse{animation:pulse 1.3s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes cardFlip{0%{transform:perspective(500px) rotateY(0) scale(1);opacity:1}100%{transform:perspective(500px) rotateY(90deg) scale(0.85);opacity:0}}
+.flipping{animation:cardFlip .18s ease-in forwards;pointer-events:none;}
+
+/* ── Toast ───────────────────────────────────────────────── */
+#toast{position:fixed;bottom:calc(74px + var(--safe-b));left:50%;transform:translateX(-50%);z-index:999;pointer-events:none;transition:opacity .3s;white-space:nowrap;}
+.toast-inner{background:var(--ink);color:var(--paper);padding:11px 20px;border-radius:24px;font-size:13.5px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,0.35);}
+
+/* ── Bandeau jalon ───────────────────────────────────────── */
+.milestone{background:linear-gradient(120deg,var(--crimson-ink),var(--crimson));color:var(--paper);padding:13px 16px;text-align:center;font-weight:600;font-size:14.5px;font-family:var(--font-display);animation:fadein .3s ease;position:relative;overflow:hidden;}
+.milestone::after{content:'';position:absolute;inset:0;background:var(--holo);opacity:0.18;mix-blend-mode:overlay;}
+
+/* ── Paramètres ──────────────────────────────────────────── */
+.settings-section{padding:16px;border-bottom:1px solid var(--bd);}
+.theme-btn{padding:9px 15px;border-radius:20px;border:1px solid var(--bd);background:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink);transition:all .15s;}
+.theme-btn.active{background:var(--crimson);border-color:var(--crimson);color:#fff;}
+.big-btn{width:100%;padding:14px;border-radius:var(--r8);border:none;cursor:pointer;font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;}
+.big-btn:active{transform:scale(0.98);}
+
+/* ── Historique ──────────────────────────────────────────── */
+.hist-day{font-family:var(--font-display);font-size:13px;font-weight:600;color:var(--ink2);letter-spacing:.03em;padding:12px 16px 5px;font-style:italic;}
+.hist-card{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--bd);cursor:pointer;}
+.hist-card:active{background:var(--paper2);}
+
+/* ── Scanner ─────────────────────────────────────────────── */
+.scan-btn{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:var(--crimson);color:#fff;border:none;border-radius:28px;padding:13px 28px;font-size:14.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(179,39,44,0.45);z-index:5;}
+.scan-result{background:var(--paper2);border-radius:var(--r12);padding:13px 15px;margin:12px 14px 0;border:1.5px solid var(--gold);}
+
+/* ── Objectifs ───────────────────────────────────────────── */
+.sugg-card{padding:13px 16px;border-bottom:1px solid var(--bd);cursor:pointer;}
+.sugg-card:active{background:var(--paper2);}
+.missing-thumbs{display:flex;gap:6px;overflow-x:auto;padding:6px 0;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.missing-thumbs::-webkit-scrollbar{display:none;}
+.missing-thumbs img{width:46px;border-radius:6px;flex-shrink:0;opacity:0.45;filter:grayscale(1);border:1px dashed var(--bd2);}
+
+/* ── Recherche globale ───────────────────────────────────── */
+.search-bar-wrap{padding:12px 14px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--paper);z-index:5;}
+.search-bar-inner{position:relative;}
+.search-bar-inner i{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--ink3);pointer-events:none;}
+.search-bar-inner input{padding-left:38px;font-size:16px;border-radius:var(--r12);}
+.search-result-item{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .1s;}
+.search-result-item:active{background:var(--paper2);}
+.search-empty{text-align:center;padding:52px 26px;color:var(--ink2);line-height:1.5;}
+
+/* ── Sets récents ────────────────────────────────────────── */
+.recent-wrap{padding:13px 14px 9px;}
+.recent-scroll{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px;}
+.recent-scroll::-webkit-scrollbar{display:none;}
+
+/* ── Geste retour ────────────────────────────────────────── */
+#swipe-edge{position:fixed;left:0;top:50%;transform:translateY(-50%);width:4px;height:60px;background:var(--gold);border-radius:0 4px 4px 0;opacity:0;transition:opacity .3s;pointer-events:none;z-index:900;}
+#swipe-edge.visible{opacity:0.6;}
+</style>
+
+</head>
+<body>
+<div id="toast" style="opacity:0;"><div class="toast-inner" id="toastMsg"></div></div>
+<div id="swipe-edge"></div>
+<div id="app"><div id="header"></div><div id="content"></div><div id="tabbar"></div></div>
+<script>
+/* ══ CONSTANTES ══════════════════════════════════════════ */
+const FR='https://api.tcgdex.net/v2/fr';
+const R='#B3272C';        /* crimson — accent principal */
+const GOLD='#B8862E';     /* foil doré — complétion, rareté */
+const GREEN='#3E7D4A';
+const ORANGE='#B5711E';
+const PURPLE='#6B4E9E';   /* doubles */
+const QUALITY=['Mint','Near Mint','Excellent','Good','Light Play','Played','Poor'];
+const QS={Mint:'M','Near Mint':'NM',Excellent:'EX',Good:'GD','Light Play':'LP',Played:'PL',Poor:'PR'};
+const QC={Mint:'#0a9b6e','Near Mint':'#3a9b0a',Excellent:'#7a9900',Good:'#b07800','Light Play':'#b85a00',Played:'#c03800',Poor:'#a00000'};
+const RARITY_FR={Common:'Commune',Uncommon:'Peu commune',Rare:'Rare','Rare Holo':'Rare Holo','Rare Holo EX':'Rare Holo EX','Rare Holo GX':'Rare Holo GX','Rare Holo V':'Rare Holo V','Rare Holo VMAX':'Rare Holo VMAX','Rare Holo VSTAR':'Rare Holo VSTAR','Rare Rainbow':'Arc-en-ciel','Rare Secret':'Secrète','Rare Shiny':'Brillante','Rare Ultra':'Ultra Rare','Amazing Rare':'Extraordinaire',LEGEND:'LÉGENDE',Promo:'Promo','Illustration Rare':'Illustrée','Special Illustration Rare':'Illustrée Spéciale','Hyper Rare':'Hyper Rare','Double Rare':'Double Rare','ACE SPEC Rare':'Rare ACE SPEC'};
+const TYPE_COLORS={Incolore:'#a8a878',Obscurité:'#705848',Dragon:'#7038f8',Fée:'#ee99ac',Combat:'#c03028',Feu:'#f08030',Plante:'#78c850',Électrik:'#f8d030',Métal:'#b8b8d0',Psy:'#f85888',Eau:'#6890f0',Colorless:'#a8a878',Darkness:'#705848',Fighting:'#c03028',Fire:'#f08030',Grass:'#78c850',Lightning:'#f8d030',Metal:'#b8b8d0',Psychic:'#f85888',Water:'#6890f0',Fairy:'#ee99ac'};
+const CACHE_TTL=7*24*3600*1000;
+
+/* ══ ÉTAT ════════════════════════════════════════════════ */
+let S={
+  tab:'collection', view:'sets',
+  sets:[], cards:[], cardDetails:{}, setNames:{},
+  selSet:null, selCard:null,
+  col:{},
+  sortBy:'number', sortSets:'date',
+  filter:'all', qSets:'', qCards:'', serie:'all',
+  theme:'auto', apiKey:'', scanMode:'ocr',
+  scanning:false, scanResult:null,
+  loading:false, camErr:false, camErrMsg:'', zoom:false, offline:false,
+  milestone:null, lastSaved:null, storageBlocked:false,
+  /* ── NOUVEAU ── */
+  searchQuery:'', searchResults:[], searchLoading:false,
+  prevView:null,   /* pour l'animation slide */
+};
+let camStream=null, toastTimer=null, mileTimer=null, searchTimer=null, tesseractLoading=null;
+
+/* ══ STOCKAGE ════════════════════════════════════════════ */
+function loadAll(){
+  /* Vérifie que le stockage local est réellement disponible et persistant
+     (navigation privée sur Safari/Firefox le bloque parfois silencieusement) */
+  try{
+    const testKey='__pkdx_test__';
+    localStorage.setItem(testKey,'1');
+    localStorage.removeItem(testKey);
+    S.storageBlocked=false;
+  }catch(e){S.storageBlocked=true;}
+
+  try{const d=localStorage.getItem('pkdx-fr');if(d)S.col=JSON.parse(d);}catch(e){}
+  try{S.theme=localStorage.getItem('pkdx-theme')||'auto';}catch(e){}
+  try{S.apiKey=atob(localStorage.getItem('pkdx-key')||'');}catch(e){}
+  try{S.scanMode=localStorage.getItem('pkdx-scanmode')||'ocr';}catch(e){}
+  try{const ls=localStorage.getItem('pkdx-lastsaved');if(ls)S.lastSaved=parseInt(ls,10);}catch(e){}
+}
+
+/* Sauvegarde forcée avant que l'utilisateur quitte/ferme l'app,
+   pour ne jamais perdre une action de dernière seconde */
+window.addEventListener('pagehide',()=>{try{localStorage.setItem('pkdx-fr',JSON.stringify(S.col));}catch(e){}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){try{localStorage.setItem('pkdx-fr',JSON.stringify(S.col));}catch(e){}}});
+function saveCol(){
+  try{
+    localStorage.setItem('pkdx-fr',JSON.stringify(S.col));
+    S.lastSaved=Date.now();
+    localStorage.setItem('pkdx-lastsaved',String(S.lastSaved));
+    S.storageBlocked=false;
+  }catch(e){
+    S.storageBlocked=true;
+    showToast('⚠️ Sauvegarde impossible (stockage plein ou navigation privée)','err');
+  }
+}
+function savePrefs(){
+  try{localStorage.setItem('pkdx-theme',S.theme);}catch(e){}
+  try{localStorage.setItem('pkdx-key',btoa(S.apiKey||''));}catch(e){}
+  try{localStorage.setItem('pkdx-scanmode',S.scanMode);}catch(e){}
+}
+
+/* ── Sets récents ───────────────────────────────────────── */
+function trackRecentSet(id){
+  try{
+    let r=JSON.parse(localStorage.getItem('pkdx-recent')||'[]');
+    r=[id,...r.filter(x=>x!==id)].slice(0,8);
+    localStorage.setItem('pkdx-recent',JSON.stringify(r));
+  }catch(e){}
+}
+function getRecentSetIds(){
+  try{return JSON.parse(localStorage.getItem('pkdx-recent')||'[]');}catch(e){return[];}
+}
+
+/* ══ CACHE API ═══════════════════════════════════════════ */
+function cacheSet(id,data){try{localStorage.setItem(`pkdx-c-${id}`,JSON.stringify({d:data,t:Date.now()}));}catch(e){}}
+function getCache(id){try{const r=localStorage.getItem(`pkdx-c-${id}`);if(!r)return null;const{d,t}=JSON.parse(r);if(Date.now()-t>CACHE_TTL)return null;return d;}catch(e){return null;}}
+function cacheSets(data){try{localStorage.setItem('pkdx-c-sets',JSON.stringify({d:data,t:Date.now()}));}catch(e){}}
+function getCachedSets(){try{const r=localStorage.getItem('pkdx-c-sets');if(!r)return null;const{d,t}=JSON.parse(r);if(Date.now()-t>CACHE_TTL)return null;return d;}catch(e){return null;}}
+
+/* ══ THÈME ═══════════════════════════════════════════════ */
+function applyTheme(){
+  const html=document.documentElement;
+  const dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  if(S.theme==='dark')html.setAttribute('data-theme','dark');
+  else if(S.theme==='light')html.setAttribute('data-theme','light');
+  else{html.setAttribute('data-theme','auto');dark?html.classList.add('sys-dark'):html.classList.remove('sys-dark');}
+  document.getElementById('themeColor').content=(S.theme==='dark'||(S.theme==='auto'&&dark))?'#17130F':'#B3272C';
+}
+function setTheme(t){S.theme=t;savePrefs();applyTheme();render();}
+window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',applyTheme);
+
+/* ══ API ════════════════════════════════════════════════ */
+async function fetchSets(){
+  const cached=getCachedSets();
+  if(cached){S.sets=cached;render();return;}
+  S.loading=true;render();
+  try{
+    const r=await fetch(`${FR}/sets`);
+    if(!r.ok)throw new Error();
+    const d=await r.json();
+    S.sets=(d||[]).sort((a,b)=>b.id.localeCompare(a.id,undefined,{numeric:true}));
+    cacheSets(S.sets);S.offline=false;
+  }catch(e){
+    S.offline=true;
+    const fb=getCachedSets();if(fb)S.sets=fb;
+  }
+  S.loading=false;render();
+}
+
+async function loadSet(id){
+  const set=S.sets.find(s=>s.id===id);if(!set)return;
+  trackRecentSet(id);
+  S.selSet=set;S.view='cards';S.cards=[];S.qCards='';S.filter='all';S.loading=true;
+  scrollTop();render();
+  const cached=getCache(id);
+  if(cached){
+    S.selSet={...set,...cached};
+    S.cards=(cached.cards||[]).sort((a,b)=>(parseInt(a.localId)||0)-(parseInt(b.localId)||0));
+    S.setNames[id]=cached.name||set.name;
+    S.loading=false;render();return;
+  }
+  try{
+    const r=await fetch(`${FR}/sets/${id}`);
+    if(!r.ok)throw new Error();
+    const d=await r.json();
+    S.selSet={...set,...d};
+    S.cards=(d.cards||[]).sort((a,b)=>(parseInt(a.localId)||0)-(parseInt(b.localId)||0));
+    S.setNames[id]=d.name||set.name;
+    cacheSet(id,d);S.offline=false;
+  }catch(e){S.offline=true;}
+  S.loading=false;render();
+}
+
+async function openCard(id){
+  const brief=S.cards.find(c=>c.id===id)||S.cardDetails[id]||S.searchResults.find(c=>c.id===id);
+  if(!brief)return;
+  S.selCard=S.cardDetails[id]||brief;
+  S.view='detail';S.zoom=false;scrollTop();render();
+  if(!S.cardDetails[id]){
+    try{
+      const r=await fetch(`${FR}/cards/${id}`);
+      if(!r.ok)throw new Error();
+      const d=await r.json();
+      S.cardDetails[id]=d;
+      if(S.view==='detail'&&S.selCard?.id===id){S.selCard=d;render();}
+    }catch(e){}
+  }
+}
+
+/* ── Recherche globale ───────────────────────────────────── */
+function onSearchInput(val){
+  S.searchQuery=val;
+  clearTimeout(searchTimer);
+  if(!val.trim()){S.searchResults=[];S.searchLoading=false;render();return;}
+  S.searchLoading=true;render();
+  searchTimer=setTimeout(()=>doSearch(val),420);
+}
+
+async function doSearch(query){
+  if(!query.trim()){S.searchResults=[];S.searchLoading=false;render();return;}
+  try{
+    /* TCGdex filtre par nom */
+    const r=await fetch(`${FR}/cards?name=${encodeURIComponent(query)}&pageSize=30`);
+    if(!r.ok)throw new Error();
+    const d=await r.json();
+    S.searchResults=Array.isArray(d)?d:(d.data||d.cards||[]);
+  }catch(e){
+    /* Fallback : cherche dans les sets mis en cache */
+    const q=query.toLowerCase();
+    const results=[];
+    for(const key of Object.keys(localStorage)){
+      if(!key.startsWith('pkdx-c-')||key==='pkdx-c-sets')continue;
+      const data=getCache(key.replace('pkdx-c-',''));
+      if(data?.cards){
+        results.push(...data.cards.filter(c=>c.name?.toLowerCase().includes(q)));
+        if(results.length>=30)break;
+      }
+    }
+    S.searchResults=results.slice(0,30);
+  }
+  S.searchLoading=false;render();
+}
+
+/* ══ ACTIONS COLLECTION ══════════════════════════════════ */
+function flipAndOpen(el,id){el.classList.add('flipping');setTimeout(()=>openCard(id),200);}
+
+function doToggleOwned(id){
+  const ex=S.col[id]||{};
+  const card=S.cards.find(c=>c.id===id)||S.selCard||S.searchResults.find(c=>c.id===id);
+  if(!ex.owned){
+    S.col[id]={...ex,owned:true,quality:ex.quality||'Near Mint',
+      addedAt:ex.addedAt||Date.now(),
+      name:card?.name,image:card?.image,
+      setId:S.selSet?.id,setName:S.selSet?.name};
+    checkMilestone(S.selSet);
+  }else{
+    S.col[id]={...ex,owned:false};
+  }
+  saveCol();render();
+}
+function toggleOwned(id){doToggleOwned(id);}
+function quickToggle(id,e){e.stopPropagation();doToggleOwned(id);}
+function toggleWanted(id){const ex=S.col[id]||{};S.col[id]={...ex,wanted:!ex.wanted};saveCol();render();}
+function quickWant(id,e){e.stopPropagation();toggleWanted(id);}
+function toggleDouble(id){const ex=S.col[id]||{};S.col[id]={...ex,double:!ex.double};saveCol();render();}
+function setQuality(id,q){S.col[id]={...(S.col[id]||{owned:true}),quality:q};saveCol();render();}
+
+/* ══ JALONS ══════════════════════════════════════════════ */
+function checkMilestone(set){
+  if(!set)return;
+  const total=set.cardCount?.total||0;if(!total)return;
+  const owned=ownedInSet(set.id);
+  const pct=Math.round(owned/total*100),prev=Math.round((owned-1)/total*100);
+  for(const m of [{p:100,msg:`🏆 ${set.name} — Collection complète !`},{p:99,msg:`🔥 Plus qu'une carte pour ${set.name} !`},{p:90,msg:`⭐ ${set.name} atteint 90% !`}]){
+    if(pct>=m.p&&prev<m.p){showMilestone(m.msg);break;}
+  }
+}
+function showMilestone(msg){
+  clearTimeout(mileTimer);S.milestone=msg;render();
+  mileTimer=setTimeout(()=>{S.milestone=null;render();},4000);
+}
+
+/* ══ TOAST ═══════════════════════════════════════════════ */
+function showToast(msg,type='ok'){
+  clearTimeout(toastTimer);
+  const t=document.getElementById('toast'),m=document.getElementById('toastMsg');
+  if(!t||!m)return;
+  m.textContent=msg;t.style.opacity='1';
+  t.querySelector('.toast-inner').style.background={ok:GREEN,err:R,warn:GOLD,info:'#5A4F42'}[type]||'#333';
+  toastTimer=setTimeout(()=>{t.style.opacity='0';},3000);
+}
+
+/* ══ SCAN GRATUIT (OCR, sans clé API) ═══════════════════ */
+function loadTesseract(){
+  if(window.Tesseract)return Promise.resolve();
+  if(tesseractLoading)return tesseractLoading;
+  tesseractLoading=new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload=()=>resolve();
+    s.onerror=()=>{tesseractLoading=null;reject(new Error('load-fail'));};
+    document.head.appendChild(s);
+  });
+  return tesseractLoading;
+}
+
+function normalizeTxt(s){
+  return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+}
+
+/* Extrait un numéro de carte du type "004/165" détecté dans le texte OCR —
+   bien plus fiable que le nom, car imprimé dans une police simple */
+function extractCardNumber(text){
+  const m=(text||'').match(/(\d{1,4})\s*\/\s*(\d{1,4})/);
+  return m?parseInt(m[1],10):null;
+}
+
+/* Cherche la carte la plus probable dans un texte OCR brut,
+   d'abord dans le set ouvert, sinon dans les derniers résultats de recherche */
+function findCardByOcrText(rawText){
+  const norm=normalizeTxt(rawText);
+  if(!norm)return null;
+  const words=norm.split(' ').filter(w=>w.length>=3);
+  const pool=S.cards.length?S.cards:(S.searchResults.length?S.searchResults:[]);
+  if(!pool.length)return null;
+  let best=null,bestScore=0;
+  for(const card of pool){
+    const cname=normalizeTxt(card.name);
+    if(!cname)continue;
+    if(norm.includes(cname))return card; /* nom entier retrouvé tel quel : match direct */
+    let score=0;
+    for(const w of words){if(cname.includes(w))score++;}
+    if(score>bestScore){bestScore=score;best=card;}
+  }
+  return bestScore>=1?best:null;
+}
+
+/* Calcule, en pixels natifs de la vidéo, la zone exacte couverte par le
+   rectangle rouge affiché à l'écran (60% de large, ratio carte 2.5/3.5),
+   en tenant compte du recadrage object-fit:cover du <video>. */
+function computeCardCrop(video){
+  const rect=video.getBoundingClientRect();
+  const cw=rect.width,ch=rect.height;
+  const vw=video.videoWidth,vh=video.videoHeight;
+  if(!cw||!ch||!vw||!vh)return null;
+
+  const containerAspect=cw/ch;
+  const videoAspect=vw/vh;
+  let visW,visH,offX,offY;
+  if(videoAspect>containerAspect){
+    visH=vh;visW=vh*containerAspect;offX=(vw-visW)/2;offY=0;
+  }else{
+    visW=vw;visH=vw/containerAspect;offX=0;offY=(vh-visH)/2;
+  }
+
+  const guideWcss=cw*0.6, guideHcss=guideWcss*(3.5/2.5);
+  const guideXcss=(cw-guideWcss)/2, guideYcss=(ch-guideHcss)/2;
+
+  const x=offX+(guideXcss/cw)*visW;
+  const y=offY+(guideYcss/ch)*visH;
+  const w=(guideWcss/cw)*visW;
+  const h=(guideHcss/ch)*visH;
+
+  return {
+    x:Math.max(0,x), y:Math.max(0,y),
+    w:Math.min(w,vw-x), h:Math.min(h,vh-y)
+  };
+}
+
+/* Prépare l'image pour l'OCR : recadre sur la carte, agrandit,
+   passe en niveaux de gris et augmente le contraste */
+function prepareCardCanvas(video){
+  const crop=computeCardCrop(video)||{x:0,y:0,w:video.videoWidth,h:video.videoHeight};
+  const SCALE=2; /* les petits textes se lisent mieux une fois agrandis */
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.round(crop.w*SCALE);
+  canvas.height=Math.round(crop.h*SCALE);
+  const ctx=canvas.getContext('2d');
+  ctx.imageSmoothingEnabled=true;
+  ctx.drawImage(video,crop.x,crop.y,crop.w,crop.h,0,0,canvas.width,canvas.height);
+
+  const img=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const d=img.data;
+  for(let i=0;i<d.length;i+=4){
+    const gray=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+    const contrasted=Math.min(255,Math.max(0,(gray-128)*1.35+128));
+    d[i]=d[i+1]=d[i+2]=contrasted;
+  }
+  ctx.putImageData(img,0,0);
+  return canvas;
+}
+
+async function scanWithOCR(){
+  const video=document.getElementById('camvid');
+  if(S.camErr){showToast('Caméra indisponible','err');return;}
+  if(!video||!video.videoWidth){showToast('Caméra pas encore prête, patientez…','warn');return;}
+  S.scanning=true;S.scanResult=null;render();
+  try{
+    await loadTesseract();
+    const canvas=prepareCardCanvas(video);
+    const { data }=await window.Tesseract.recognize(canvas,'fra');
+    const text=(data?.text||'').trim();
+    if(!text){showToast('Aucun texte détecté — approchez la carte et éclairez-la mieux','warn');S.scanning=false;render();return;}
+
+    let match=null;
+
+    /* 1) Priorité au numéro de carte (ex: "004/165") : bien plus fiable que le nom */
+    const num=extractCardNumber(text);
+    if(num!=null&&S.cards.length){
+      const candidates=S.cards.filter(c=>parseInt(c.localId,10)===num);
+      if(candidates.length===1)match=candidates[0];
+    }
+
+    /* 2) Sinon, correspondance par nom */
+    if(!match)match=findCardByOcrText(text);
+
+    /* 3) Sinon, si aucun set n'est ouvert, recherche en ligne avec le mot le plus probable */
+    if(!match&&!S.cards.length){
+      const norm=normalizeTxt(text);
+      const guess=norm.split(' ').filter(w=>w.length>=4).sort((a,b)=>b.length-a.length)[0];
+      if(guess){
+        try{
+          const r=await fetch(`${FR}/cards?name=${encodeURIComponent(guess)}&pageSize=10`);
+          const d=await r.json();
+          const results=Array.isArray(d)?d:(d.data||d.cards||[]);
+          if(results.length){match=results[0];S.searchResults=results;}
+        }catch(e){}
+      }
+    }
+
+    if(match){
+      S.scanResult={name:match.name,number:match.localId,confidence:'ocr'};
+      showToast(`🔍 ${match.name}`,'ok');
+      setTimeout(()=>openCard(match.id),700);
+    }else{
+      const preview=text.replace(/\s+/g,' ').slice(0,60);
+      S.scanResult={name:null,number:null,confidence:'none',rawText:preview};
+      showToast('Carte non reconnue — voir le texte lu ci-dessous','warn');
+    }
+  }catch(e){
+    showToast('Erreur de lecture — réessayez','err');
+  }
+  S.scanning=false;render();
+}
+
+function scanCard(){
+  if(S.scanMode==='ai'&&S.apiKey)scanWithAI();
+  else scanWithOCR();
+}
+
+/* ══ SCAN IA (Claude, nécessite une clé API) ════════════ */
+async function scanWithAI(){
+  const video=document.getElementById('camvid');
+  if(S.camErr){showToast('Caméra indisponible — voir le message ci-dessus','err');return;}
+  if(!video||!video.videoWidth){showToast('Caméra pas encore prête, patientez…','warn');return;}
+  if(!S.apiKey){S.view='settings';render();showToast('Entrez votre clé API dans Paramètres','info');return;}
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.min(video.videoWidth,800);canvas.height=Math.min(video.videoHeight,600);
+  canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
+  const b64=canvas.toDataURL('image/jpeg',0.85).split(',')[1];
+  S.scanning=true;S.scanResult=null;render();
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':S.apiKey,
+        'anthropic-version':'2023-06-01',
+        /* Requis pour autoriser les appels directement depuis un navigateur (CORS) */
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+          {type:'text',text:'Identifie cette carte Pokémon TCG. Réponds UNIQUEMENT en JSON: {"name":"nom français","number":"numéro","confidence":"high|medium|low|none"}. Si impossible: {"confidence":"none"}.'}
+        ]}]})
+    });
+    if(!resp.ok){
+      const errBody=await resp.json().catch(()=>({}));
+      const msg=errBody?.error?.message||'';
+      if(resp.status===401)showToast('Clé API invalide — vérifiez-la dans Paramètres','err');
+      else if(resp.status===429)showToast('Limite atteinte, réessayez dans un instant','warn');
+      else showToast(`Erreur API (${resp.status})${msg?' : '+msg.slice(0,60):''}`,'err');
+      S.scanning=false;render();return;
+    }
+    const data=await resp.json();
+    const text=data.content?.[0]?.text?.trim()||'{"confidence":"none"}';
+    let result;try{result=JSON.parse(text.replace(/```json|```/g,'').trim());}catch(e){result={confidence:'none'};}
+    if(result.confidence&&result.confidence!=='none'){
+      S.scanResult=result;
+      showToast(`🔍 ${result.name||'Carte identifiée'}`,'ok');
+      if(result.number){
+        const found=S.cards.find(c=>c.localId===String(result.number));
+        if(found)setTimeout(()=>openCard(found.id),900);
+      }
+    }else{showToast('Carte non reconnue — réessayez avec plus de lumière','warn');}
+  }catch(e){
+    if(e instanceof TypeError)showToast('Connexion impossible — vérifiez votre réseau','err');
+    else showToast('Erreur pendant l\'analyse','err');
+  }
+  S.scanning=false;render();
+}
+
+/* ══ EXPORT / IMPORT ════════════════════════════════════ */
+async function exportCollection(){
+  const owned=Object.entries(S.col).filter(([,v])=>v.owned);
+  const data={version:3,exportedAt:new Date().toISOString(),
+    stats:{total:owned.length,sets:new Set(owned.map(([id])=>id.split('-')[0])).size},
+    collection:S.col};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  if(navigator.share&&navigator.canShare){
+    try{await navigator.share({title:'Ma Collection Pokémon TCG',text:`${owned.length} cartes`,files:[new File([blob],'collection-pokemon.json',{type:'application/json'})]});return;}catch(e){}
+  }
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='collection-pokemon.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showToast('Collection exportée ✓','ok');
+}
+
+function importCollection(){
+  const input=document.createElement('input');
+  input.type='file';input.accept='.json,application/json';
+  input.onchange=async(e)=>{
+    const file=e.target.files[0];if(!file)return;
+    try{
+      const data=JSON.parse(await file.text());
+      const col=data.collection||data;
+      if(typeof col==='object'){
+        S.col={...S.col,...col};saveCol();render();
+        showToast(`${Object.values(col).filter(v=>v.owned).length} cartes importées ✓`,'ok');
+      }
+    }catch(e){showToast('Fichier invalide','err');}
+  };
+  input.click();
+}
+
+/* ══ NAVIGATION ══════════════════════════════════════════ */
+function goBack(){
+  if(S.zoom){S.zoom=false;render();return;}
+  if(S.view==='settings'){S.view='sets';render();return;}
+  if(S.view==='history'){S.view='stats';render();return;}
+  if(S.view==='search'){S.view='sets';S.searchQuery='';S.searchResults=[];render();return;}
+  if(S.view==='detail'){
+    S.view=S.tab==='collection'?'cards':'sets';scrollTop();render();
+  } else if(S.view==='cards'){
+    S.view='sets';S.cards=[];S.selSet=null;render();
+  }
+}
+
+function switchTab(tab){
+  if(tab==='scanner'&&S.tab!=='scanner')setTimeout(startCam,80);
+  else if(tab!=='scanner'&&camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  S.tab=tab;
+  if(tab==='collection')S.view='sets';
+  if(tab==='stats')S.view='stats';
+  scrollTop();render();
+}
+
+async function startCam(){
+  S.camErrMsg='';
+  /* La caméra exige un contexte sécurisé (HTTPS) — file:// ou http:// la bloque */
+  const isSecure=window.isSecureContext===true;
+  if(!isSecure){
+    S.camErr=true;
+    S.camErrMsg='insecure';
+    render();return;
+  }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    S.camErr=true;S.camErrMsg='unsupported';render();return;
+  }
+  try{
+    const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1440}}});
+    camStream=st;S.camErr=false;S.camErrMsg='';
+    const v=document.getElementById('camvid');if(v){v.srcObject=st;v.play().catch(()=>{});}
+  }catch(e){
+    S.camErr=true;
+    if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError')S.camErrMsg='denied';
+    else if(e.name==='NotFoundError'||e.name==='DevicesNotFoundError')S.camErrMsg='notfound';
+    else if(e.name==='NotReadableError')S.camErrMsg='busy';
+    else S.camErrMsg='other';
+  }
+  render();
+}
+
+function scrollTop(){const c=document.getElementById('content');if(c)c.scrollTop=0;}
+
+/* ══ GESTES SWIPE ════════════════════════════════════════ */
+function attachGestures(){
+  const app=document.getElementById('app');
+  if(!app||app._gesturesAttached)return;
+  app._gesturesAttached=true;
+  let sx=0,sy=0,edge=null;
+  const swipeEl=document.getElementById('swipe-edge');
+
+  app.addEventListener('touchstart',e=>{
+    sx=e.touches[0].clientX;sy=e.touches[0].clientY;
+    if(sx<30){edge=true;if(swipeEl)swipeEl.classList.add('visible');}
+  },{passive:true});
+
+  app.addEventListener('touchmove',e=>{
+    if(!edge)return;
+    const dx=e.touches[0].clientX-sx;
+    if(swipeEl)swipeEl.style.width=Math.min(dx/3,14)+'px';
+  },{passive:true});
+
+  app.addEventListener('touchend',e=>{
+    if(swipeEl){swipeEl.classList.remove('visible');swipeEl.style.width='4px';}
+    if(!edge){edge=false;return;}
+    const dx=e.changedTouches[0].clientX-sx;
+    const dy=e.changedTouches[0].clientY-sy;
+    if(dx>70&&Math.abs(dy)<80)goBack();
+    edge=false;
+  },{passive:true});
+}
+
+/* ══ CALCULS ═════════════════════════════════════════════ */
+function ownedInSet(sid){return Object.entries(S.col).filter(([id,v])=>v.owned&&id.startsWith(sid+'-')).length;}
+function wantedInSet(sid){return Object.entries(S.col).filter(([id,v])=>v.wanted&&!v.owned&&id.startsWith(sid+'-')).length;}
+function doublesInSet(sid){return Object.entries(S.col).filter(([id,v])=>v.double&&id.startsWith(sid+'-')).length;}
+function pc(n){return n>=75?GREEN:n>=25?ORANGE:R;}
+function imgS(c){return c?.image?`${c.image}/low.webp`:'';}
+function imgL(c){return c?.image?`${c.image}/high.webp`:'';}
+function trR(r){return RARITY_FR[r]||r||'—';}
+
+function filteredSets(){
+  return S.sets
+    .filter(s=>!S.qSets||s.name?.toLowerCase().includes(S.qSets.toLowerCase()))
+    .filter(s=>S.serie==='all'||s.serie?.name===S.serie||s.serie===S.serie)
+    .sort((a,b)=>{
+      if(S.sortSets==='name')return(a.name||'').localeCompare(b.name||'','fr');
+      if(S.sortSets==='completion')return(b.cardCount?.total?ownedInSet(b.id)/b.cardCount.total:0)-(a.cardCount?.total?ownedInSet(a.id)/a.cardCount.total:0);
+      return 0;
+    });
+}
+
+/* ── Miniature booster ──────────────────────────────────── */
+/* pokemontcg.io a la meilleure qualité (mêmes IDs que TCGdex).
+   On tente l'image logo officielle, puis le logo TCGdex en fallback. */
+function setThumbUrl(set){
+  return `https://images.pokemontcg.io/${set.id}/logo.png`;
+}
+function setThumbFallback(set){
+  return set.logo||'';
+}
+
+function filteredCards(){
+  const q=S.qCards.toLowerCase();
+  return S.cards
+    .filter(c=>{
+      if(S.filter==='owned')return S.col[c.id]?.owned;
+      if(S.filter==='missing')return!S.col[c.id]?.owned;
+      if(S.filter==='wanted')return S.col[c.id]?.wanted&&!S.col[c.id]?.owned;
+      if(S.filter==='double')return S.col[c.id]?.double;
+      return true;
+    })
+    .filter(c=>!q||c.name?.toLowerCase().includes(q))
+    .sort((a,b)=>{
+      if(S.sortBy==='name')return(a.name||'').localeCompare(b.name||'','fr');
+      return(parseInt(a.localId)||0)-(parseInt(b.localId)||0);
+    });
+}
+
+/* ══════════════════════════════════════════════════════════
+   RENDU PRINCIPAL
+══════════════════════════════════════════════════════════ */
+function render(){
+  applyTheme();
+  const H=document.getElementById('header'),C=document.getElementById('content'),T=document.getElementById('tabbar');
+  if(!H||!C||!T)return;
+  const fid=document.activeElement?.id,fpos=document.activeElement?.selectionStart;
+  const{tab,view,selSet,selCard,col,loading,zoom,offline}=S;
+  const ownedCount=S.cards.filter(c=>col[c.id]?.owned).length;
+  const totalOwned=Object.values(col).filter(v=>v.owned).length;
+  const totalWanted=Object.values(col).filter(v=>v.wanted&&!v.owned).length;
+  const totalDoubles=Object.values(col).filter(v=>v.double).length;
+  const total=selSet?.cardCount?.total||0;
+  const hasDoubles=totalDoubles>0;
+
+  /* Titre dynamique */
+  const TITLES={sets:'Ma Collection',cards:selSet?.name||'',detail:selCard?.name||'',
+    settings:'Paramètres',stats:'Statistiques',history:'Historique',search:'Recherche'};
+  const title=tab==='scanner'?'Scanner':tab==='suggestions'?'Objectifs':TITLES[view]||'';
+
+  const showBack=
+    (tab==='collection'&&view!=='sets')||
+    view==='settings'||view==='history'||view==='search';
+  const countBadge=tab==='collection'&&view==='cards'&&!loading?`${ownedCount}/${total}`:'';
+
+  const pokeball=`<div style="width:28px;height:28px;position:relative;overflow:hidden;border-radius:50%;flex-shrink:0;border:2.5px solid #111;">
+    <div style="position:absolute;top:0;left:0;right:0;height:50%;background:${R};"></div>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:50%;background:#fff;border-top:2.5px solid #111;"></div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:9px;height:9px;background:#eee;border-radius:50%;border:2px solid #111;z-index:1;"></div>
+  </div>`;
+
+  /* ── En-tête ── */
+  H.innerHTML=`<div style="display:flex;align-items:center;padding:10px 14px;gap:8px;min-height:50px;">
+    ${showBack?`<button onclick="goBack()" style="background:none;border:none;padding:4px 6px 4px 0;color:${R};display:flex;align-items:center;cursor:pointer;"><i class="ti ti-arrow-left" style="font-size:23px;"></i></button>`:''}
+    ${view==='cards'&&selSet?.symbol?`<img src="${selSet.symbol}" style="width:28px;height:28px;object-fit:contain;flex-shrink:0;" alt="">`:view==='sets'&&tab==='collection'?pokeball:''}
+    <h1 style="font-size:18px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${title}</h1>
+    ${offline?`<i class="ti ti-wifi-off" style="font-size:16px;color:var(--tx3);flex-shrink:0;" title="Hors ligne"></i>`:''}
+    ${countBadge?`<span style="font-size:13px;color:var(--tx2);white-space:nowrap;">${countBadge}</span>`:''}
+    ${view==='sets'&&tab==='collection'?`
+      <button onclick="S.view='search';S.searchQuery='';S.searchResults=[];render();setTimeout(()=>document.getElementById('gsq')?.focus(),80);" style="background:none;border:none;cursor:pointer;color:var(--tx2);padding:4px;" title="Recherche globale"><i class="ti ti-search" style="font-size:21px;"></i></button>
+      <button onclick="S.view='settings';render();" style="background:none;border:none;cursor:pointer;color:var(--tx2);padding:4px;" title="Paramètres"><i class="ti ti-settings" style="font-size:21px;"></i></button>`:''}
+  </div>
+  ${S.milestone?`<div class="milestone">${S.milestone}</div>`:''}`;
+
+  /* ── Barre d'onglets ── */
+  T.innerHTML=`<div style="display:flex;">${[
+    {id:'collection',ic:'ti-cards',lb:'Collection'},
+    {id:'suggestions',ic:'ti-target',lb:'Objectifs'},
+    {id:'scanner',ic:'ti-camera',lb:'Scanner'},
+    {id:'stats',ic:'ti-chart-bar',lb:'Stats'},
+  ].map(t=>`<button class="tab-btn" onclick="switchTab('${t.id}')" style="color:${tab===t.id?R:'var(--tx2)'};" aria-label="${t.lb}">
+    <div class="tab-dot ${t.id==='collection'&&hasDoubles?'on':''}"></div>
+    <i class="ti ${t.ic}" style="font-size:25px;"></i><span>${t.lb}</span>
+  </button>`).join('')}</div>`;
+
+  /* ── Contenu ── */
+  let html='',anim='fade';
+  if(zoom&&view==='detail'&&selCard){
+    html=`<div class="zoom-wrap" onclick="S.zoom=false;render();"><img src="${imgL(selCard)}" alt="${selCard.name||''}" style="max-width:100%;max-height:72vh;border-radius:14px;object-fit:contain;"><span style="font-size:12px;color:rgba(255,255,255,0.35);">Toucher pour fermer</span></div>`;
+  } else if(view==='settings'){html=renderSettings();}
+  else if(view==='search'){html=renderSearch();anim='slide-left';}
+  else if(tab==='collection'){
+    if(view==='sets'){html=renderSets();anim='slide-right';}
+    else if(view==='cards'){html=renderCards(ownedCount,total);anim='slide-left';}
+    else if(view==='detail'&&selCard){html=renderDetail();anim='slide-left';}
+  }
+  else if(tab==='scanner')html=renderScanner();
+  else if(tab==='suggestions')html=renderSuggestions();
+  else if(tab==='stats'){
+    if(view==='history'){html=renderHistory();anim='slide-left';}
+    else html=renderStats(totalOwned,totalWanted,totalDoubles);
+  }
+
+  C.innerHTML=`<div class="${anim}">${html}</div>`;
+
+  if(fid){const el=document.getElementById(fid);if(el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA')){el.focus();try{el.setSelectionRange(fpos,fpos);}catch(e){}}}
+  if(tab==='scanner'&&!S.camErr){setTimeout(()=>{const v=document.getElementById('camvid');if(v&&camStream){v.srcObject=camStream;v.play();}else if(v&&!camStream)startCam();},60);}
+  attachGestures();
+}
+
+/* ══════════════════════════════════════════════════════════
+   VUES
+══════════════════════════════════════════════════════════ */
+
+/* ── Éditions ── */
+function renderSets(){
+  const fs=filteredSets();
+  const allSeries=['all',...new Set(S.sets.map(x=>x.serie?.name||x.serie).filter(Boolean))];
+
+  /* Sets récents */
+  const recentIds=getRecentSetIds();
+  const recentSets=recentIds.map(id=>S.sets.find(s=>s.id===id)).filter(Boolean);
+  const recentHtml=recentSets.length?`<div class="recent-wrap">
+    <div style="font-family:var(--font-display);font-style:italic;font-size:12.5px;font-weight:500;color:var(--tx3);margin-bottom:7px;">Récemment visités</div>
+    <div class="recent-scroll">
+      ${recentSets.map(s=>`<div onclick="loadSet('${s.id}')" style="flex-shrink:0;cursor:pointer;border-radius:12px;overflow:hidden;border:1px solid var(--bd);width:82px;background:var(--paper2);box-shadow:0 1px 5px rgba(28,23,18,0.06);">
+        <div style="width:82px;height:52px;overflow:hidden;background:var(--paper2);">
+          <img src="${setThumbUrl(s)}" alt="${s.name}" style="width:100%;height:100%;object-fit:contain;padding:5px;"
+               loading="lazy" onerror="this.src='${setThumbFallback(s)}';this.onerror=null;">
+        </div>
+        <div style="padding:5px 6px;font-size:10px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name}</div>
+      </div>`).join('')}
+    </div>
+  </div><div style="height:1px;background:var(--bd);"></div>`:'';
+
+  const toolbar=`<div style="padding:14px 14px 11px;display:flex;flex-direction:column;gap:9px;">
+    <div style="position:relative;"><i class="ti ti-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--tx3);pointer-events:none;"></i>
+    <input id="sq" type="text" placeholder="Filtrer les éditions…" value="${S.qSets}" oninput="S.qSets=this.value;render();"></div>
+    <div style="display:flex;gap:8px;">
+      <select onchange="S.serie=this.value;render();" style="flex:1;">
+        ${allSeries.map(s=>`<option value="${s}" ${S.serie===s?'selected':''}>${s==='all'?'Toutes les séries':s}</option>`).join('')}
+      </select>
+      <select onchange="S.sortSets=this.value;render();">
+        <option value="date" ${S.sortSets==='date'?'selected':''}>Date ↓</option>
+        <option value="name" ${S.sortSets==='name'?'selected':''}>A → Z</option>
+        <option value="completion" ${S.sortSets==='completion'?'selected':''}>% complété</option>
+      </select>
+    </div>
+  </div><div style="height:1px;background:var(--bd);"></div>`;
+
+  if(S.loading)return recentHtml+toolbar+`<div class="empty pulse"><i class="ti ti-pokeball" style="font-size:46px;"></i>Ouverture du classeur…</div>`;
+  if(!fs.length)return recentHtml+toolbar+`<div class="empty"><i class="ti ti-search-off" style="font-size:42px;"></i>Aucune édition ne correspond.<br><span style="font-size:12.5px;">Essayez un autre mot, ou changez de série.</span></div>`;
+
+  return recentHtml+toolbar+fs.map((set,i)=>{
+    const total=set.cardCount?.total||0,owned=ownedInSet(set.id),doubles=doublesInSet(set.id),pct=total?Math.round(owned/total*100):0;
+    const thumb=setThumbUrl(set),fallback=setThumbFallback(set);
+    const rot=(i%2===0)?-2:2;
+    return`<div class="set-item" onclick="loadSet('${set.id}')">
+
+      <!-- Miniature booster, légèrement inclinée comme posée sur la page -->
+      <div style="width:76px;flex-shrink:0;border-radius:11px;overflow:hidden;border:1px solid var(--bd);background:var(--paper2);display:flex;flex-direction:column;position:relative;transform:rotate(${rot}deg);box-shadow:0 2px 7px rgba(28,23,18,0.08);">
+        <img src="${thumb}" alt="${set.name}"
+             style="width:76px;height:76px;object-fit:contain;padding:7px;display:block;"
+             loading="lazy"
+             onerror="this.src='${fallback}';this.onerror=null;this.style.padding='5px'">
+        ${pct>0?`<div style="height:3px;background:var(--paper3);"><div class="${pct===100?'progress-fill is-complete':''}" style="height:100%;width:${pct}%;${pct===100?'':'background:'+pc(pct)+';'}"></div></div>`:'<div style="height:3px;"></div>'}
+        ${set.symbol?`<img src="${set.symbol}" style="position:absolute;top:4px;right:4px;width:16px;height:16px;object-fit:contain;filter:drop-shadow(0 0 2px rgba(0,0,0,0.5));" alt="">`:``}
+        ${pct===100&&total>0?`<div style="position:absolute;top:4px;left:4px;background:${GOLD};border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,0.35);"><i class="ti ti-trophy" style="font-size:10px;color:#fff;"></i></div>`:''}
+      </div>
+
+      <!-- Infos texte -->
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;padding-left:4px;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+          <span style="font-family:var(--font-display);font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${set.name}</span>
+          ${doubles>0?`<span class="mono" style="font-size:10px;font-weight:700;color:${PURPLE};background:${PURPLE}18;padding:1px 5px;border-radius:8px;flex-shrink:0;">${doubles}×2</span>`:''}
+        </div>
+        <div style="font-size:11.5px;color:var(--tx2);margin-bottom:7px;">${set.serie?.name||set.serie||''} · ${total} cartes</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-bar" style="flex:1;"><div class="progress-fill ${pct===100?'is-complete':''}" style="width:${pct}%;${pct===100?'':'background:'+pc(pct)+';'}"></div></div>
+          <span class="mono" style="font-size:11px;font-weight:600;color:${owned>0?pc(pct):'var(--tx3)'};white-space:nowrap;flex-shrink:0;">
+            ${owned>0?`${owned}/${total} · ${pct}%`:`0/${total}`}
+          </span>
+        </div>
+      </div>
+
+      <i class="ti ti-chevron-right" style="font-size:15px;color:var(--tx3);margin-left:6px;flex-shrink:0;align-self:center;"></i>
+    </div>`;
+  }).join('');
+}
+
+/* ── Recherche globale ── */
+function renderSearch(){
+  const bar=`<div class="search-bar-wrap">
+    <div class="search-bar-inner">
+      <i class="ti ti-search"></i>
+      <input id="gsq" type="text" placeholder="Nom d'un Pokémon, une carte…" value="${S.searchQuery}" oninput="onSearchInput(this.value)" autocomplete="off" autofocus>
+    </div>
+  </div>`;
+
+  if(!S.searchQuery.trim())return bar+`<div class="search-empty"><i class="ti ti-pokeball" style="font-size:44px;color:${R};opacity:0.3;"></i><div style="margin-top:10px;font-size:14px;color:var(--tx2);">Tapez le nom d'une carte<br>pour la trouver dans tous les sets</div></div>`;
+
+  if(S.searchLoading)return bar+`<div class="empty pulse"><i class="ti ti-search" style="font-size:44px;color:${R};"></i>Recherche…</div>`;
+
+  if(!S.searchResults.length)return bar+`<div class="search-empty"><i class="ti ti-mood-sad" style="font-size:44px;color:var(--tx3);"></i><div style="margin-top:10px;font-size:14px;color:var(--tx2);">Aucune carte trouvée pour<br><strong style="color:var(--tx);">"${S.searchQuery}"</strong></div></div>`;
+
+  const results=S.searchResults.map(card=>{
+    const cd=S.col[card.id]||{},owned=cd.owned,quality=cd.quality;
+    const setName=card.set?.name||card.localId||'';
+    return`<div class="search-result-item" onclick="flipAndOpen(this,'${card.id}')">
+      <div style="position:relative;width:48px;flex-shrink:0;">
+        <img src="${imgS(card)}" alt="${card.name||''}" style="width:48px;border-radius:6px;aspect-ratio:2.5/3.5;object-fit:cover;filter:${owned?'none':'grayscale(0.7)'};opacity:${owned?1:0.5};" loading="lazy" onerror="this.style.background='var(--bg2)'">
+        ${owned?`<div style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;background:${GREEN};border-radius:50%;border:1.5px solid var(--bg);display:flex;align-items:center;justify-content:center;"><i class="ti ti-check" style="font-size:8px;color:#fff;"></i></div>`:''}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${card.name||'—'}</div>
+        <div style="font-size:12px;color:var(--tx2);">${setName} · #${card.localId||'?'}</div>
+        ${owned&&quality?`<div style="font-size:11px;font-weight:700;color:${QC[quality]};">${QS[quality]} — ${quality}</div>`:''}
+      </div>
+      <button onclick="event.stopPropagation();quickToggle('${card.id}',event);" style="width:32px;height:32px;border-radius:50%;border:none;background:${owned?GREEN+'20':'var(--bg2)'};cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <i class="ti ${owned?'ti-check':'ti-plus'}" style="font-size:15px;color:${owned?GREEN:'var(--tx2)'};"></i>
+      </button>
+    </div>`;
+  }).join('');
+
+  return bar+`<div style="padding-bottom:24px;"><div style="padding:8px 16px;font-size:12px;color:var(--tx2);">${S.searchResults.length} résultat${S.searchResults.length>1?'s':''}</div>${results}</div>`;
+}
+
+/* ── Grille de cartes ── */
+function renderCards(ownedCount,total){
+  const fc=filteredCards(),pct=total?Math.round(ownedCount/total*100):0;
+  const toolbar=`<div style="padding:12px 14px 0;">
+    <div style="position:relative;margin-bottom:8px;"><i class="ti ti-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--tx2);pointer-events:none;"></i>
+    <input id="cq" type="text" placeholder="Rechercher dans ce set…" value="${S.qCards}" oninput="S.qCards=this.value;render();"></div>
+    <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:8px;">
+      ${[['all','Toutes'],['owned','Possédées'],['missing','Manquantes'],['wanted','Voulues'],['double','Doubles']].map(([v,l])=>
+        `<button class="pill" onclick="S.filter='${v}';render();" style="border-color:${S.filter===v?R:'var(--bd)'};background:${S.filter===v?R+'18':'none'};color:${S.filter===v?R:'var(--tx2)'};">${l}</button>`
+      ).join('')}
+      <select onchange="S.sortBy=this.value;render();" style="margin-left:auto;">
+        <option value="number" ${S.sortBy==='number'?'selected':''}>N°</option>
+        <option value="name" ${S.sortBy==='name'?'selected':''}>Nom</option>
+      </select>
+    </div>
+    <div style="margin-bottom:6px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="color:var(--tx2);">${ownedCount}/${total} possédées</span><span style="color:${pc(pct)};font-weight:700;">${pct}%</span></div>
+      <div class="progress-bar"><div class="progress-fill ${pct===100?'is-complete':''}" style="width:${pct}%;${pct===100?'':'background:'+pc(pct)+';'}height:5px;"></div></div>
+    </div>
+  </div>`;
+  if(S.loading)return toolbar+`<div class="empty pulse"><i class="ti ti-cards" style="font-size:44px;"></i>Ouverture des pochettes…</div>`;
+  if(!fc.length)return toolbar+`<div class="empty"><i class="ti ti-mood-empty" style="font-size:42px;"></i>Aucune carte ne correspond à ce filtre.<br><span style="font-size:12.5px;">Changez de filtre, ou revenez à « Toutes ».</span></div>`;
+  return toolbar+`<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:10px 14px 24px;">
+    ${fc.map(card=>{
+      const cd=S.col[card.id]||{},owned=cd.owned,quality=cd.quality,wanted=cd.wanted,isDouble=cd.double;
+      return`<div class="card-wrap ${owned?'is-owned':'is-missing'}" onclick="flipAndOpen(this,'${card.id}')">
+        <img src="${imgS(card)}" alt="${card.name||''}" style="width:100%;aspect-ratio:2.5/3.5;object-fit:cover;display:block;position:relative;z-index:0;" loading="lazy" onerror="this.style.background='var(--bg2)'">
+        <button class="qbtn" onclick="quickToggle('${card.id}',event)" style="background:${owned?GREEN:'rgba(28,23,18,0.5)'};" aria-label="${owned?'Retirer':'Ajouter'}">
+          <i class="ti ${owned?'ti-check':'ti-plus'}" style="font-size:13px;color:#fff;"></i>
+        </button>
+        ${wanted&&!owned?`<button class="qheart" onclick="quickWant('${card.id}',event)"><i class="ti ti-heart" style="font-size:12px;color:#fff;"></i></button>`:''}
+        ${isDouble?`<div class="qdouble">×2</div>`:''}
+        <div style="padding:7px 8px;position:relative;z-index:2;">
+          <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${card.name||'—'}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:3px;">
+            <span class="mono" style="font-size:11px;color:var(--tx2);">#${card.localId||'?'}</span>
+            ${owned&&quality?`<span class="mono" style="font-size:10px;font-weight:700;color:${QC[quality]};">${QS[quality]}</span>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ── Détail carte ── */
+function renderDetail(){
+  const card=S.selCard,cd=S.col[card.id]||{};
+  const owned=cd.owned,quality=cd.quality,wanted=cd.wanted,isDouble=cd.double;
+  const isLoading=!S.cardDetails[card.id];
+  const setTotal=S.selSet?.cardCount?.total||'?';
+  const typeBadges=(card.types||[]).map(t=>`<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;background:${(TYPE_COLORS[t]||'#888')}22;color:${TYPE_COLORS[t]||'#888'};border:1px solid ${(TYPE_COLORS[t]||'#888')}55;">${t}</span>`).join('');
+  const attacks=(card.attacks||[]).map(atk=>`<div style="padding:9px 0;border-bottom:1px solid var(--bd);"><div style="display:flex;justify-content:space-between;font-weight:600;font-size:14px;"><span>${atk.name||''}</span><span class="mono" style="color:var(--tx2);">${atk.damage||''}</span></div>${atk.effect?`<div style="font-size:12px;color:var(--tx2);margin-top:3px;line-height:1.4;">${atk.effect}</div>`:''}</div>`).join('');
+  const addedStr=cd.addedAt?new Date(cd.addedAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'';
+  return`<div style="padding:18px 16px 40px;">
+    <div onclick="S.zoom=true;render();" style="cursor:zoom-in;text-align:center;margin-bottom:18px;position:relative;">
+      <img src="${imgL(card)}" alt="${card.name||''}" style="width:58%;max-width:220px;border-radius:14px;filter:${owned?'none':'grayscale(1)'};opacity:${owned?1:0.5};transition:all .3s;box-shadow:${owned?'0 8px 28px rgba(28,23,18,0.18)':'none'};" onerror="this.style.background='var(--bg2)';this.style.minHeight='200px'">
+      <div style="font-size:12px;color:var(--tx2);margin-top:6px;"><i class="ti ti-zoom-in" style="font-size:13px;"></i> Agrandir</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r12);padding:12px 15px;margin-bottom:13px;">
+      ${[['Nom',`<strong style="font-family:var(--font-display);font-weight:600;">${card.name||'—'}</strong>`],['Édition',S.selSet?.name||'—'],['Numéro',`<span class="mono">#${card.localId||'?'} / ${setTotal}</span>`],['Rareté',trR(card.rarity)],card.hp?['PV',`<span class="mono">${card.hp}</span>`]:null,card.stage?['Stade',card.stage]:null,card.illustrator?['Illustrateur',card.illustrator]:null,addedStr?['Ajoutée le',addedStr]:null].filter(Boolean).map(([k,v])=>`<div class="row"><span style="color:var(--tx2);">${k}</span><span style="font-weight:500;max-width:58%;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v}</span></div>`).join('')}
+      ${typeBadges?`<div style="padding:9px 0 1px;display:flex;gap:6px;flex-wrap:wrap;">${typeBadges}</div>`:''}
+    </div>
+    ${isLoading?`<div style="text-align:center;padding:8px;font-size:13px;color:var(--tx2);" class="pulse">Consultation de la fiche…</div>`:''}
+    ${card.description?`<div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r12);padding:13px 15px;margin-bottom:13px;font-size:14px;color:var(--tx2);font-style:italic;line-height:1.55;font-family:var(--font-display);">« ${card.description} »</div>`:''}
+    ${attacks?`<div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r12);padding:11px 15px;margin-bottom:13px;"><div style="font-family:var(--font-display);font-weight:600;font-size:15px;margin-bottom:5px;">Attaques</div>${attacks}</div>`:''}
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:15px;">
+      <button class="action-btn" onclick="toggleOwned('${card.id}')" style="border:2px solid ${owned?R:'var(--bd2)'};background:${owned?R+'18':'none'};color:${owned?R:'var(--tx)'};">
+        <i class="ti ${owned?'ti-check':'ti-plus'}"></i>${owned?'Possédée':'Ajouter'}
+      </button>
+      <button class="action-btn" onclick="toggleWanted('${card.id}')" style="border:1px solid ${wanted&&!owned?R:'var(--bd)'};background:${wanted&&!owned?R+'18':'none'};color:${wanted&&!owned?R:'var(--tx2)'};">
+        <i class="ti ti-heart"></i>${wanted&&!owned?'Voulue':'Vouloir'}
+      </button>
+      <button class="action-btn" onclick="toggleDouble('${card.id}')" style="border:1px solid ${isDouble?PURPLE:'var(--bd)'};background:${isDouble?PURPLE+'18':'none'};color:${isDouble?PURPLE:'var(--tx2)'};">
+        <i class="ti ti-copy"></i>${isDouble?'Double':'En ×2'}
+      </button>
+    </div>
+    ${owned?`<div style="font-family:var(--font-display);font-size:14.5px;color:var(--tx2);margin-bottom:9px;font-weight:600;">Qualité de la carte</div>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;">
+      ${QUALITY.map(q=>`<button onclick="setQuality('${card.id}','${q}')" style="padding:10px 11px;border-radius:var(--r8);border:1px solid ${quality===q?QC[q]:'var(--bd)'};background:${quality===q?QC[q]+'1a':'none'};cursor:pointer;font-size:13px;text-align:left;color:${quality===q?QC[q]:'var(--tx)'};font-weight:${quality===q?700:500};font-family:inherit;"><span class="mono" style="font-weight:800;">${QS[q]}</span> ${q}</button>`).join('')}
+    </div>`:`<div style="border:1.5px dashed var(--bd2);border-radius:var(--r8);padding:18px;text-align:center;font-size:14px;color:var(--tx2);line-height:1.5;">Ajoutez cette carte à votre classeur pour lui donner une note de qualité.</div>`}
+  </div>`;
+}
+
+/* ── Scanner ── */
+function renderScanner(){
+  const errInfo={
+    insecure:{
+      icon:'ti-shield-lock',
+      title:'Connexion non sécurisée',
+      detail:"La caméra ne fonctionne que sur une page servie en HTTPS (ou localhost). Ouvrir ce fichier directement (file://) ou via http:// bloque l'accès caméra dans tous les navigateurs mobiles.",
+      action:"Hébergez ce fichier HTML sur un service gratuit comme tiiny.host, Netlify Drop ou GitHub Pages, puis ouvrez l'URL https:// obtenue.",
+      retry:false
+    },
+    denied:{
+      icon:'ti-camera-off',
+      title:'Accès caméra refusé',
+      detail:"Vous avez refusé l'autorisation caméra pour ce site.",
+      action:"Ouvrez les réglages du navigateur → Autorisations du site → Caméra → Autoriser, puis rechargez la page.",
+      retry:true
+    },
+    notfound:{
+      icon:'ti-camera-off',
+      title:'Aucune caméra détectée',
+      detail:"Cet appareil ne semble pas avoir de caméra accessible.",
+      action:'Vérifiez qu\'aucune autre application n\'utilise déjà la caméra.',
+      retry:true
+    },
+    busy:{
+      icon:'ti-camera-off',
+      title:'Caméra occupée',
+      detail:"Une autre application utilise déjà la caméra.",
+      action:'Fermez les autres applis utilisant la caméra puis réessayez.',
+      retry:true
+    },
+    unsupported:{
+      icon:'ti-camera-off',
+      title:'Navigateur non compatible',
+      detail:"Ce navigateur ne supporte pas l'accès caméra web.",
+      action:'Essayez avec Chrome ou Firefox à jour.',
+      retry:false
+    },
+    other:{
+      icon:'ti-camera-off',
+      title:'Caméra non accessible',
+      detail:"Une erreur inattendue est survenue.",
+      action:'Réessayez, ou redémarrez le navigateur.',
+      retry:true
+    }
+  };
+  const info=errInfo[S.camErrMsg]||errInfo.other;
+  const aiAvailable=!!S.apiKey;
+  const mode=S.scanMode;
+  const loadingLabel=mode==='ai'?'Analyse Claude en cours…':'Lecture du texte…';
+  const btnLabel=S.scanning?(mode==='ai'?'Analyse…':'Lecture…'):(mode==='ai'?'Scanner avec IA':'Scanner (gratuit)');
+
+  const modeToggle=`<div style="display:flex;gap:6px;padding:0 0 12px;">
+    <button onclick="S.scanMode='ocr';savePrefs();render();" style="flex:1;padding:10px;border-radius:var(--r8);border:1.5px solid ${mode==='ocr'?R:'var(--bd)'};background:${mode==='ocr'?R+'14':'var(--bg2)'};color:${mode==='ocr'?R:'var(--tx2)'};font-weight:600;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;">
+      <span><i class="ti ti-scan"></i> Gratuit</span><span style="font-size:10px;font-weight:400;">Lecture de texte, hors ligne</span>
+    </button>
+    <button onclick="${aiAvailable?"S.scanMode='ai';savePrefs();render();":"S.view='settings';render();showToast('Ajoutez une clé API pour ce mode','info');"}" style="flex:1;padding:10px;border-radius:var(--r8);border:1.5px solid ${mode==='ai'?R:'var(--bd)'};background:${mode==='ai'?R+'14':'var(--bg2)'};color:${mode==='ai'?R:'var(--tx2)'};font-weight:600;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;opacity:${aiAvailable?1:0.65};">
+      <span><i class="ti ti-sparkles"></i> IA Claude ${aiAvailable?'':'🔒'}</span><span style="font-size:10px;font-weight:400;">${aiAvailable?'Plus précis, holo compris':'Nécessite une clé API'}</span>
+    </button>
+  </div>`;
+
+  return`<div style="padding:14px 14px 36px;">
+    ${modeToggle}
+    <div style="border-radius:var(--r16);overflow:hidden;background:#0F0D0A;aspect-ratio:4/3;position:relative;margin-bottom:14px;border:1px solid var(--bd);">
+      ${S.camErr?`<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ddd;gap:10px;text-align:center;padding:22px;">
+        <i class="ti ${info.icon}" style="font-size:44px;color:#888;"></i>
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:600;color:#fff;">${info.title}</div>
+        <div style="font-size:12.5px;color:#aaa;line-height:1.5;">${info.detail}</div>
+        <div style="font-size:12px;color:${GOLD};line-height:1.5;background:${GOLD}1a;padding:8px 12px;border-radius:8px;">${info.action}</div>
+        ${info.retry?`<button onclick="startCam();" style="margin-top:4px;padding:10px 22px;border-radius:20px;background:${R};color:#fff;border:none;font-size:14px;cursor:pointer;font-weight:600;">Réessayer</button>`:''}
+      </div>`:`<video id="camvid" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;"></video>`}
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+        <div style="width:60%;aspect-ratio:2.5/3.5;border:2.5px solid ${GOLD};border-radius:10px;box-shadow:0 0 0 999px rgba(15,13,10,0.55);opacity:${S.camErr?0:1};"></div>
+      </div>
+      ${S.scanning?`<div style="position:absolute;inset:0;background:rgba(15,13,10,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:12px;"><i class="ti ti-${mode==='ai'?'sparkles':'scan'}" style="font-size:42px;" class="pulse"></i><span style="font-size:15px;font-weight:600;">${loadingLabel}</span></div>`:''}
+      ${!S.camErr?`<button class="scan-btn" onclick="scanCard();" ${S.scanning?'disabled':''} style="opacity:${S.scanning?0.6:1};">
+        <i class="ti ti-${S.scanning?'loader':(mode==='ai'?'sparkles':'scan')}"></i>${btnLabel}
+      </button>`:''}
+    </div>
+    ${S.scanResult?(S.scanResult.confidence==='none'?`<div class="scan-result" style="border-color:${GOLD};">
+      <div style="font-family:var(--font-display);font-weight:600;font-size:15px;margin-bottom:4px;">🤔 Non reconnue</div>
+      <div style="font-size:12.5px;color:var(--tx2);margin-bottom:6px;">Aucune correspondance trouvée. Texte lu par la caméra :</div>
+      <div class="mono" style="font-size:12px;background:var(--bg);padding:7px 9px;border-radius:6px;color:var(--tx2);word-break:break-word;">${S.scanResult.rawText||'(vide)'}</div>
+      <div style="font-size:12px;color:var(--tx2);margin-top:6px;">💡 Ouvrez le set concerné avant de scanner, et cadrez bien la carte à plat.</div>
+    </div>`:`<div class="scan-result">
+      <div style="font-family:var(--font-display);font-weight:600;font-size:15px;margin-bottom:4px;">🔍 Identifiée</div>
+      <div style="font-size:14px;">${S.scanResult.name||'—'}${S.scanResult.number?` · <span class="mono" style="color:var(--tx2);">#${S.scanResult.number}</span>`:''}</div>
+      <span style="font-size:11px;padding:2px 8px;border-radius:10px;margin-top:5px;display:inline-block;background:${S.scanResult.confidence==='high'?GREEN+'20':GOLD+'20'};color:${S.scanResult.confidence==='high'?GREEN:GOLD};">${S.scanResult.confidence==='ocr'?'Lecture de texte':'Confiance : '+S.scanResult.confidence}</span>
+    </div>`):
+    `<div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r12);padding:15px 16px;">
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:600;margin-bottom:10px;">Comment utiliser</div>
+      ${mode==='ocr'?[
+        ['ti-scan','Placez la carte bien à plat dans le rectangle'],
+        ['ti-sun','Bon éclairage, texte net et lisible'],
+        ['ti-folder-open','Ouvrez d\'abord le set concerné pour de meilleurs résultats'],
+        ['ti-world','Nécessite une page servie en HTTPS (pas file://)'],
+        ['ti-gift','100% gratuit, aucune clé requise']
+      ]:[
+        ['ti-sparkles','Placez la carte dans le rectangle doré'],
+        ['ti-sun','Bon éclairage, sans reflets'],
+        ['ti-key','Clé API requise → Paramètres ⚙️'],
+        ['ti-cpu','Claude identifie la carte en quelques secondes'],
+        ['ti-world','Nécessite une page servie en HTTPS (pas file://)']
+      ].map(([ic,txt])=>`<div style="display:flex;gap:10px;padding:6.5px 0;font-size:14px;color:var(--tx2);"><i class="ti ${ic}" style="font-size:18px;color:${GOLD};flex-shrink:0;"></i>${txt}</div>`).join('')}
+    </div>`}
+  </div>`;
+}
+
+/* ── Suggestions / Objectifs ── */
+function renderSuggestions(){
+  const started=S.sets.filter(s=>{const total=s.cardCount?.total||0;return ownedInSet(s.id)>0&&ownedInSet(s.id)<total;})
+    .sort((a,b)=>{const ta=a.cardCount?.total||1,tb=b.cardCount?.total||1;return(ownedInSet(b.id)/tb)-(ownedInSet(a.id)/ta);});
+  if(!started.length)return`<div class="empty"><i class="ti ti-target" style="font-size:46px;"></i>Votre classeur est vide pour l'instant.<br><span style="font-size:13px;">Ouvrez une édition et marquez vos premières cartes — elles apparaîtront ici.</span></div>`;
+  const wanted=Object.entries(S.col).filter(([,v])=>v.wanted&&!v.owned);
+  return`<div style="padding-bottom:24px;">
+    ${wanted.length?`<div style="padding:14px 16px 0;"><div class="section-title">❤️ Liste de souhaits (${wanted.length})</div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:16px;">
+      ${wanted.slice(0,9).map(([id,v])=>`<div onclick="openCard('${id}')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:0.5px solid var(--bd);">
+        ${v.image?`<img src="${v.image}/low.webp" alt="${v.name||''}" style="width:100%;aspect-ratio:2.5/3.5;object-fit:cover;" loading="lazy">`:
+          `<div style="aspect-ratio:2.5/3.5;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--tx2);">${id}</div>`}
+      </div>`).join('')}
+    </div></div>`:''}
+    <div style="padding:14px 16px 0;"><div class="section-title">🎯 Sets à compléter</div></div>
+    ${started.map(set=>{
+      const total=set.cardCount?.total||0,owned=ownedInSet(set.id),pct=Math.round(owned/total*100),missing=total-owned;
+      const cached=getCache(set.id);
+      const missingCards=cached?.cards?.filter(c=>!S.col[c.id]?.owned)||[];
+      return`<div class="sugg-card" onclick="loadSet('${set.id}');S.tab='collection';">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <div style="width:50px;height:50px;border-radius:8px;overflow:hidden;border:0.5px solid var(--bd);background:var(--bg2);flex-shrink:0;">
+            <img src="${setThumbUrl(set)}" alt="${set.name}"
+                 style="width:100%;height:100%;object-fit:contain;padding:3px;" loading="lazy"
+                 onerror="this.src='${setThumbFallback(set)}';this.onerror=null;">
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${set.name}</div>
+            <div style="font-size:12px;color:${pc(pct)};font-weight:600;">${owned}/${total} · ${pct}% · ${missing} manquante${missing>1?'s':''}</div>
+          </div>
+          <i class="ti ti-chevron-right" style="font-size:15px;color:var(--tx3);"></i>
+        </div>
+        <div class="progress-bar" style="margin-bottom:${missingCards.length?'8':'0'}px;"><div class="progress-fill ${pct===100?'is-complete':''}" style="width:${pct}%;${pct===100?'':'background:'+pc(pct)+';'}height:5px;"></div></div>
+        ${missingCards.length?`<div class="missing-thumbs">${missingCards.slice(0,12).map(c=>`<img src="${c.image?c.image+'/low.webp':''}" alt="${c.name||''}" loading="lazy">`).join('')}</div>`:''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ── Statistiques ── */
+function renderStats(totalOwned,totalWanted,totalDoubles){
+  const ownedArr=Object.values(S.col).filter(v=>v.owned);
+  const qC={};QUALITY.forEach(q=>qC[q]=0);ownedArr.forEach(c=>{if(c.quality&&qC[c.quality]!==undefined)qC[c.quality]++;});
+  const setsWithCards=new Set(Object.keys(S.col).filter(id=>S.col[id].owned).map(id=>id.split('-')[0])).size;
+  const topSets=S.sets.map(s=>({name:s.name,owned:ownedInSet(s.id),total:s.cardCount?.total||0,pct:s.cardCount?.total?Math.round(ownedInSet(s.id)/s.cardCount.total*100):0})).filter(s=>s.owned>0).sort((a,b)=>b.pct-a.pct).slice(0,5);
+  const recentCount=Object.values(S.col).filter(v=>v.owned&&v.addedAt&&Date.now()-v.addedAt<7*24*3600*1000).length;
+  return`<div style="padding:16px 16px 44px;">
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:18px;">
+      <div class="metric"><div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Possédées</div><div class="mono" style="font-size:28px;font-weight:600;color:${R};">${totalOwned}</div></div>
+      <div class="metric"><div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Voulues</div><div class="mono" style="font-size:28px;font-weight:600;">${totalWanted}</div></div>
+      <div class="metric"><div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Doubles</div><div class="mono" style="font-size:28px;font-weight:600;color:${PURPLE};">${totalDoubles}</div></div>
+      <div class="metric"><div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Éditions</div><div class="mono" style="font-size:28px;font-weight:600;">${setsWithCards}</div></div>
+    </div>
+    ${recentCount>0?`<button onclick="S.view='history';render();" style="width:100%;background:var(--bg2);border:0.5px solid var(--bd);border-radius:var(--r8);padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <i class="ti ti-history" style="font-size:20px;color:${R};"></i>
+      <div style="text-align:left;flex:1;"><div style="font-weight:600;font-size:14px;">Historique d'ajouts</div><div style="font-size:12px;color:var(--tx2);">${recentCount} carte${recentCount>1?'s':''} cette semaine</div></div>
+      <i class="ti ti-chevron-right" style="color:var(--tx3);"></i>
+    </button>`:''}
+    ${topSets.length?`<div class="section-title">Meilleures complétions</div>
+    ${topSets.map(s=>`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:62%;font-weight:600;">${s.name}</span><span class="mono" style="font-weight:700;color:${pc(s.pct)};white-space:nowrap;margin-left:8px;">${s.owned}/${s.total} · ${s.pct}%</span></div><div class="progress-bar"><div class="progress-fill ${s.pct===100?'is-complete':''}" style="width:${s.pct}%;${s.pct===100?'':'background:'+pc(s.pct)+';'}height:6px;"></div></div></div>`).join('')}
+    <div style="height:0.5px;background:var(--bd);margin:14px 0;"></div>`:''}
+    <div class="section-title">Qualité de la collection</div>
+    ${QUALITY.map(q=>{const count=qC[q]||0,pct=ownedArr.length?Math.round(count/ownedArr.length*100):0;return`<div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"><span><span style="font-weight:800;color:${QC[q]};">${QS[q]}</span> <span style="color:var(--tx2);">${q}</span></span><span style="font-weight:700;">${count} <span style="color:var(--tx2);font-weight:400;">(${pct}%)</span></span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${QC[q]};height:6px;"></div></div></div>`;}).join('')}
+    ${!ownedArr.length?`<div class="empty" style="border:1.5px dashed var(--bd2);border-radius:var(--r12);margin-top:8px;"><i class="ti ti-pokeball" style="font-size:42px;"></i>Rien à montrer pour le moment.<br><span style="font-size:12.5px;">Explorez une édition pour commencer votre collection.</span></div>`:''}
+  </div>`;
+}
+
+/* ── Historique ── */
+function renderHistory(){
+  const entries=Object.entries(S.col).filter(([,v])=>v.owned&&v.addedAt).sort(([,a],[,b])=>b.addedAt-a.addedAt).slice(0,120);
+  if(!entries.length)return`<div class="empty"><i class="ti ti-history" style="font-size:46px;"></i>Aucun historique pour l'instant.<br><span style="font-size:13px;">Chaque carte ajoutée sera datée et listée ici automatiquement.</span></div>`;
+  const now=Date.now(),DAY=86400000;
+  const label=ts=>{const d=now-ts;if(d<DAY)return"Aujourd'hui";if(d<2*DAY)return"Hier";if(d<7*DAY)return"Cette semaine";return new Date(ts).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});};
+  let last='',html='';
+  entries.forEach(([id,v])=>{
+    const l=label(v.addedAt);
+    if(l!==last){html+=`<div class="hist-day">${l}</div>`;last=l;}
+    const setName=v.setName||S.setNames[v.setId||id.split('-')[0]]||id.split('-')[0];
+    html+=`<div class="hist-card">
+      ${v.image?`<img src="${v.image}/low.webp" alt="${v.name||''}" style="width:42px;border-radius:6px;flex-shrink:0;" loading="lazy">`:
+        `<div style="width:42px;height:56px;background:var(--bg2);border-radius:6px;flex-shrink:0;"></div>`}
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.name||id}</div>
+        <div style="font-size:12px;color:var(--tx2);">${setName}</div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:1px;">${new Date(v.addedAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      ${v.quality?`<span style="font-size:11px;font-weight:800;color:${QC[v.quality]};flex-shrink:0;">${QS[v.quality]}</span>`:''}
+    </div>`;
+  });
+  return`<div style="padding-bottom:24px;">${html}</div>`;
+}
+
+/* ── Paramètres ── */
+function renderSettings(){
+  const savedStr=S.lastSaved?new Date(S.lastSaved).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'jamais';
+  return`<div style="padding-bottom:40px;">
+    ${S.storageBlocked?`<div style="background:${R}15;border-bottom:1px solid ${R}40;padding:14px 16px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <i class="ti ti-alert-triangle" style="font-size:20px;color:${R};flex-shrink:0;margin-top:1px;"></i>
+        <div>
+          <div style="font-weight:700;font-size:14px;color:${R};margin-bottom:3px;">Sauvegarde impossible</div>
+          <div style="font-size:12.5px;color:var(--tx2);line-height:1.5;">Le stockage local est bloqué (navigation privée, ou espace disque plein). Votre collection ne sera <strong>pas</strong> conservée à la fermeture. Quittez la navigation privée, ou exportez régulièrement votre collection en secours.</div>
+        </div>
+      </div>
+    </div>`:''}
+    <div class="settings-section">
+      <div style="font-size:12px;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Apparence</div>
+      <div style="display:flex;gap:8px;">
+        ${[['auto','🌓 Auto'],['light','☀️ Clair'],['dark','🌙 Sombre']].map(([v,l])=>`<button class="theme-btn ${S.theme===v?'active':''}" onclick="setTheme('${v}')">${l}</button>`).join('')}
+      </div>
+    </div>
+    <div class="settings-section">
+      <div style="font-size:12px;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Scan IA — Claude (optionnel)</div>
+      <div style="font-size:13px;color:var(--tx2);margin-bottom:10px;">Le scan fonctionne <strong style="color:var(--tx);">gratuitement sans clé</strong>, par lecture de texte. Ajouter une clé API améliore la précision (reflets, cartes holo) mais n'est pas obligatoire.</div>
+      <div style="position:relative;"><i class="ti ti-key" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--tx2);pointer-events:none;"></i>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-…" value="${S.apiKey}" oninput="S.apiKey=this.value;savePrefs();" style="padding-left:36px;"></div>
+      ${S.apiKey?`<div style="font-size:12px;color:var(--green);margin-top:7px;display:flex;align-items:center;gap:5px;"><i class="ti ti-check-circle"></i> Clé API enregistrée</div>`:''}
+      <div style="font-size:11.5px;color:var(--tx3);margin-top:8px;line-height:1.4;"><i class="ti ti-info-circle"></i> Le scan nécessite une page ouverte en <strong>HTTPS</strong> (pas file://) pour accéder à la caméra.</div>
+    </div>
+    <div class="settings-section">
+      <div style="font-size:12px;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;">Ma Collection</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px 12px;background:var(--bg2);border-radius:var(--r8);">
+        <i class="ti ti-${S.storageBlocked?'alert-triangle':'device-floppy'}" style="font-size:18px;color:${S.storageBlocked?R:'var(--green)'};flex-shrink:0;"></i>
+        <div style="font-size:12.5px;color:var(--tx2);">
+          ${S.storageBlocked?'Sauvegarde automatique <strong style="color:'+R+'">indisponible</strong>':'Sauvegarde automatique active'}<br>
+          Dernière sauvegarde : <strong style="color:var(--tx);">${savedStr}</strong>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="big-btn" onclick="exportCollection();" style="background:${R};color:#fff;"><i class="ti ti-share"></i>Exporter / Partager</button>
+        <button class="big-btn" onclick="importCollection();" style="background:var(--bg2);color:var(--tx);border:0.5px solid var(--bd);"><i class="ti ti-upload"></i>Importer une sauvegarde</button>
+      </div>
+      <div style="font-size:12px;color:var(--tx2);margin-top:10px;">
+        <strong>${Object.values(S.col).filter(v=>v.owned).length} cartes</strong> sauvegardées sur cet appareil.
+      </div>
+    </div>
+    <div class="settings-section">
+      <div style="font-size:12px;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Pokédex TCG v4</div>
+      <div style="font-size:13px;color:var(--tx2);">Source : <a href="https://tcgdex.dev" style="color:${R};">TCGdex API</a> · 100 % français · Données en cache 7 jours</div>
+    </div>
+  </div>`;
+}
+
+/* ══ DÉMARRAGE ══════════════════════════════════════════ */
+loadAll();applyTheme();render();fetchSets();
+</script>
+</body>
+</html>
